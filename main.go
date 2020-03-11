@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"os"
+
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -15,18 +18,27 @@ type CONTACT struct {
 }
 
 func main() {
-	connStr := "host=127.0.0.1 port=5432 user=admin dbname=admin password=admin sslmode=disable"
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	connStr := "host=%s port=%s user=%s dbname=%s password=%s sslmode=%s"
+	connStr = fmt.Sprintf(connStr, os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_NAME"), os.Getenv("DB_PASSWORD"), os.Getenv("SSL_MODE"))
+
 	db, err := sql.Open("postgres", connStr)
+	defer db.Close()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// INSERT
 	var ID int
-	id := 2
-	name := "Akito"
+	id := 8
+	name := "Futu"
 	address := "Tokyo"
-	phone := "090-1111-1111"
+	phone := "090-2223-2222"
 	updatedAt := "2019-11-1"
 	createdAt := "2014-10-1"
 	err = db.QueryRow("INSERT INTO contacts(id, name, address, phone, updatedAt, createdAt) VALUES($1,$2,$3,$4,$5, $6)", id, name, address, phone, updatedAt, createdAt).Scan(&ID)
